@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>উদীয়মান সূর্যের পথে যাত্রা</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Noto+Sans+Bengali:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #ffc107;
+            --background-color: #f0f4f8;
+            --card-background: #ffffff;
+            --text-color: #333;
+            --success-color: #28a745;
+            --level-up-color: #6f42c1;
+        }
+
+        body {
+            font-family: 'Noto Sans Bengali', 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 700px;
+            background-color: var(--card-background);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 1.8em;
+            color: var(--text-color);
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            height: 20px;
+            margin: 20px 0;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--success-color);
+            transition: width 0.5s ease-in-out;
+            border-radius: 10px;
+        }
+
+        .task-list {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            background-color: var(--background-color);
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            transition: background-color 0.3s ease-in-out;
+            border: 1px solid #dee2e6;
+        }
+
+        .task-item.completed {
+            background-color: #d4edda;
+        }
+
+        .task-text {
+            flex-grow: 1;
+            font-size: 1.1em;
+            margin-left: 15px;
+            color: #555;
+        }
+
+        .complete-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            background-color: var(--primary-color);
+            color: #fff;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .complete-button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .complete-button:disabled {
+            background-color: #ced4da;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .ai-button {
+            background-color: #f06292; /* A nice pink for the AI button */
+            font-weight: bold;
+        }
+
+        #next-level-btn {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            background: linear-gradient(45deg, var(--level-up-color), var(--primary-color));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: none; /* Initially hidden */
+            margin-top: 20px;
+        }
+
+        #next-level-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        #victory-screen {
+            display: none;
+            padding: 40px;
+        }
+
+        #victory-screen h2 {
+            color: var(--success-color);
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        #victory-screen .home-run-gif {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
+        }
+
+        #victory-screen .visa-icon {
+            font-size: 100px;
+            margin-bottom: 20px;
+            color: #0d6efd; /* A nice blue color for the visa icon */
+        }
+
+        .notification-modal, .ai-modal, .dynamic-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: var(--card-background);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 400px;
+            animation: fadeInScale 0.3s ease-out;
+            position: relative;
+        }
+        
+        .close-modal-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+        }
+        
+        .close-modal-btn:hover,
+        .close-modal-btn:focus {
+            color: #000;
+            text-decoration: none;
+        }
+        
+        .modal-content h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+        
+        .modal-content p {
+            margin-bottom: 20px;
+        }
+
+        .ai-modal .modal-content, .dynamic-modal .modal-content {
+            max-width: 600px;
+            text-align: left;
+        }
+
+        #itinerary-prompt-input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 15px;
+        }
+        
+        .ai-response-area {
+            background-color: var(--background-color);
+            padding: 15px;
+            border-radius: 10px;
+            min-height: 150px;
+            white-space: pre-wrap;
+            overflow-y: auto;
+            border: 1px dashed #bbb;
+            margin-top: 15px;
+        }
+        
+        .modal-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .loading-indicator {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: var(--primary-color);
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .footnote-container {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            font-size: 0.9em;
+            line-height: 1.4;
+            color: #666;
+            text-align: left;
+        }
+        .copy-button {
+            margin-top: 10px;
+            padding: 8px 16px;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color: 0.3s;
+        }
+
+        .copy-button:hover {
+            background-color: #5a6268;
+        }
+
+        /* Styles for the intro form */
+        #intro-form {
+            text-align: center;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        #intro-form input[type="text"], #intro-form input[type="email"] {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+        #intro-form button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #intro-form button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container" id="game-container">
+    <div id="intro-form">
+        <h1>উদীয়মান সূর্যের পথে যাত্রা</h1>
+        <p>আপনার ব্যক্তিগত তথ্য দিয়ে আপনার ভিসা অ্যাডভেঞ্চার শুরু করুন।</p>
+        <!-- Removed action and method attributes to prevent page reload -->
+        <form id="user-info-form" action="https://formspree.io/f/xkgvwepz" method="POST">
+            <input type="text" name="name" id="user-name" placeholder="আপনার নাম" required>
+            <input type="email" name="email" id="user-email" placeholder="আপনার ইমেল" required>
+            <div style="margin-bottom: 15px; text-align: left;">
+                <input type="checkbox" id="consent-checkbox" name="consent" required>
+                <label for="consent-checkbox">আমি সম্মতি দিচ্ছি যে আমার তথ্য সংগ্রহ করা হোক।</label>
+            </div>
+            <button type="submit">শুরু করুন</button>
+        </form>
+    </div>
+
+    <div id="game-main" style="display:none;">
+        <h1>উদীয়মান সূর্যের পথে যাত্রা</h1>
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar" style="width: 0%;"></div>
+        </div>
+        <div id="level-screen">
+            <h2 id="level-title"></h2>
+            <p id="level-description"></p>
+            <ul class="task-list" id="task-list"></ul>
+            <button id="next-level-btn" class="next-level-button">পরের ধাপ!</button>
+            <div class="modal-buttons">
+              <button id="dynamic-btn-1" class="complete-button ai-button">✨</button>
+              <button id="dynamic-btn-2" class="complete-button ai-button">✨</button>
+            </div>
+        </div>
+        <div id="victory-screen" style="display:none;">
+            <h2>হোম রান! ভিসা হাতে!</h2>
+            <span class="visa-icon">🇯🇵✔️</span>
+            <p>অভিনন্দন! আপনি সফলভাবে সমস্ত প্রয়োজনীয়তা সম্পন্ন করেছেন এবং আপনার জাপানি ভিসা পেয়েছেন। উদীয়মান সূর্যের পথে আপনার যাত্রা সম্পূর্ণ!</p>
+            <img src="https://placehold.co/400x300/F0F4F8/333?text=Passport+with+Visa" alt="ভিসা স্ট্যাম্প সহ পাসপোর্ট" class="home-run-gif">
+        </div>
+        <div class="footnote-container" id="footnote-container"></div>
+    </div>
+</div>
+
+<!-- General Notification Modal -->
+<div id="notification-modal" class="notification-modal">
+    <div class="modal-content">
+        <span id="close-notification-btn" class="close-modal-btn">&times;</span>
+        <h3 id="modal-title"></h3>
+        <p id="modal-message"></p>
+    </div>
+</div>
+
+<!-- Gemini AI Modal for Itinerary Generation -->
+<div id="ai-modal" class="ai-modal">
+    <div class="modal-content">
+        <span id="close-ai-btn" class="close-modal-btn">&times;</span>
+        <h3>✨ AI-চালিত ভ্রমণসূচী জেনারেটর</h3>
+        <p style="margin-top: -10px; color: #dc3545; font-weight: bold;">আপনার ইমেল ঠিকানায় এই ভ্রমণসূচী পাঠানো হবে। অনুগ্রহ করে সঠিক ইমেল ঠিকানা ব্যবহার করুন।</p>
+        <p>জাপানে কেমন ট্রিপ চান জেমিনিকে বলুন:</p>
+        <input type="text" id="itinerary-prompt-input" placeholder="যেমন, 'টোকিও এবং কিয়োটোতে ৭ দিনের ফুডি ট্রিপ' বা 'মন্দির ও প্রকৃতি দেখতে ১০ দিনের ট্রিপ'">
+        <button class="complete-button" id="generate-itinerary-btn">ভ্রমণসূচী তৈরি করুন</button>
+        <div class="loading-indicator" id="loading-indicator-ai">
+            <div class="spinner"></div>
+            <p>আপনার ভ্রমণসূচী তৈরি করা হচ্ছে...</p>
+        </div>
+        <div id="ai-response-area" class="ai-response-area"></div>
+        <button class="copy-button" id="copy-itinerary-btn" style="display:none;">কপি করুন</button>
+        <button class="complete-button" id="complete-itinerary-btn" style="display: none; margin-top: 20px;">কাজ শেষ</button>
+    </div>
+</div>
+
+<!-- Dynamic Gemini Modal -->
+<div id="dynamic-modal" class="dynamic-modal">
+    <div class="modal-content">
+        <span id="close-dynamic-btn" class="close-modal-btn">&times;</span>
+        <h3 id="dynamic-modal-title"></h3>
+        <p style="margin-top: -10px; color: #dc3545; font-weight: bold;">এই তথ্যগুলো আপনার ইমেল ঠিকানায় পাঠানো হবে। অনুগ্রহ করে সঠিক ইমেল ঠিকানা ব্যবহার করুন।</p>
+        <div id="dynamic-response-area" class="ai-response-area"></div>
+        <div class="loading-indicator" id="loading-indicator-dynamic">
+            <div class="spinner"></div>
+            <p id="loading-message-dynamic"></p>
+        </div>
+        <button class="copy-button" id="copy-dynamic-btn" style="display:none;">কপি করুন</button>
+    </div>
+</div>
+
+<script>
+    // Game State and Data
+    const levels = [
+        {
+            id: 1,
+            title: "Level 1: অভিযান শুরু - পাসপোর্ট যাচাই",
+            description: "আপনার যাত্রা শুরু হচ্ছে সবচেয়ে গুরুত্বপূর্ণ নথি দিয়ে: আপনার পাসপোর্ট। নিশ্চিত করুন এটি বৈধ এবং প্রস্তুত।",
+            tasks: [
+                { text: "পাসপোর্টের মেয়াদ ন্যূনতম ৬ মাস আছে কিনা নিশ্চিত করুন।", isCompleted: false },
+                { text: "ভিসার জন্য অন্তত দুটি খালি পৃষ্ঠা আছে কিনা নিশ্চিত করুন।", isCompleted: false }
+            ],
+            taskCompleteMessages: [
+                "আপনার যাত্রার এক ধাপ কাছাকাছি! আপনার পাসপোর্ট একটি দুর্দান্ত অ্যাডভেঞ্চারের জন্য প্রস্তুত।",
+                "আরেকটি কাজ সম্পন্ন! শীঘ্রই আপনি সামুরাই এবং সুশির দেশে যাচ্ছেন।"
+            ],
+            levelUpMessage: "পাসপোর্ট যাচাই সম্পন্ন! মাউন্ট ফুজি দেখার আর এক ধাপ বাকি। পরের ধাপে যান!"
+        },
+        {
+            id: 2,
+            title: "Level 2: গুপ্তধনের মানচিত্র - নথি সংগ্রহ",
+            description: "এটি সমস্ত প্রয়োজনীয় কাগজপত্র সংগ্রহ করার সময়। প্রতিটি নথির জন্য একটি ছোট অনুসন্ধান।",
+            tasks: [
+                { text: "২ কপি সদ্য তোলা ছবি (২”x ২” সাইজ) সংগ্রহ করুন।", isCompleted: false },
+                { text: "ভিসা আবেদন ফর্ম সঠিকভাবে পূরণ করুন।", isCompleted: false },
+                { 
+                    text: "এয়ারটিকেট বুকিং কপি ও হোটেল কনফার্মেশন সংগ্রহ করুন।", 
+                    isCompleted: false,
+                    infoAction: {
+                        label: 'Call HIS',
+                        message: 'HIS Travel Mobile number : +88-01511447322'
+                    }
+                },
+                { text: "H.I.S. Travel-এর সাথে আপনার ভ্রমণসূচি তৈরি করুন। ✨", isCompleted: false, specialAction: 'generateItinerary' }
+            ],
+            taskCompleteMessages: [
+                "নথি সংগ্রহ করা হয়েছে! আপনি চেরি ব্লসমস দেখার এক ধাপ কাছাকাছি।",
+                "ফর্ম জমা দেওয়া হয়েছে! জাপানের পথ এখন পরিষ্কার।",
+                "অর্থনৈতিক নথি সুরক্ষিত! আপনার যাত্রা এখন স্থিতিশীলতার দ্বারা চালিত।",
+                "আপনার ভ্রমণ পরিকল্পনা এখন নিখুঁত! এটি প্যাকিং শুরু করার সময়।"
+            ],
+            levelUpMessage: "কাগজপত্র জমা সম্পন্ন! আপনি শি Shibuya Crossing-এর কোলাহল দেখার এক ধাপ কাছাকাছি। পরের ধাপে যান!"
+        },
+        {
+            id: 3,
+            title: "Level 3: অভিভাবকের অনুমোদন - কর্মসংস্থান/ব্যবসায়িক নথি",
+            description: "তাদের কাছে আপনার ভ্রমণের উদ্দেশ্য প্রমাণ করুন। এখানেই আপনি প্রমাণ করেন যে আপনি একজন দায়িত্বশীল ভ্রমণকারী।",
+            tasks: [
+                { text: "আপনার পেশার উপর ভিত্তি করে প্রয়োজনীয় কাগজপত্র জমা দিন (NOC/ট্রেড লাইসেন্স/অন্যান্য)।", isCompleted: false },
+                { text: "আমন্ত্রণপত্র এবং গ্যারান্টি লেটার (যদি থাকে) জমা দিন।", isCompleted: false }
+            ],
+            taskCompleteMessages: [
+                "অনুমোদিত! আপনার কাছে আপনার অনুসন্ধানের জন্য অভিভাবকের আশীর্বাদ আছে।",
+                "আমন্ত্রণপত্র হাতে আছে! পথ খোলা আছে।"
+            ],
+            levelUpMessage: "সমস্ত অনুমোদন সম্পন্ন! আপনি কিয়োটোর মন্দিরের শান্ত সৌন্দর্য অনুভব করার এক ধাপ কাছাকাছি। পরের ধাপে যান!"
+        },
+        {
+            id: 4,
+            title: "Level 4: চূড়ান্ত পরীক্ষা - আবেদন জমা",
+            description: "বড় দিনটি এসেছে। আপনি আপনার আবেদন ভিএফএস সেন্টারে জমা দিতে প্রস্তুত।",
+            tasks: [
+                { text: "ভ্রমণ খরচের জন্য প্রয়োজনীয় কাগজপত্র (ট্যাক্স-ইনকাম সার্টিফিকেট ও ব্যাংক স্টেটমেন্ট) জমা দিন।", isCompleted: false },
+                { 
+                    text: "H.I.S. Travel-এর সাথে চূড়ান্তভাবে সমস্ত নথি পুনরায় যাচাই করুন।", 
+                    isCompleted: false,
+                    infoAction: {
+                        label: 'Call HIS',
+                        message: 'HIS Travel Mobile number : +88-01511447322'
+                    }
+                },
+                { text: "ভিএফএস সেন্টারে আবেদনপত্র জমা দিন।", isCompleted: false }
+            ],
+            taskCompleteMessages: [
+                "নথি যাচাই করা হয়েছে! এখন কোন কাগজপত্র আপনাকে থামাতে পারবে না।",
+                "চেকলিস্ট H.I.S. Travel-এর সাথে যাচাই করা হয়েছে! আপনার যাত্রা নিরাপদ।",
+                "আবেদন জমা দেওয়া হয়েছে! চূড়ান্ত বসকে মোকাবিলা করা হয়েছে।"
+            ],
+            levelUpMessage: "জমা দেওয়া সম্পন্ন! চূড়ান্ত রায় আসছে। আপনি টোকিওর নিয়ন সিটির খুব কাছাকাছি। পরের ধাপে যান!"
+        },
+        {
+            id: 5,
+            title: "Level 5: দূতাবাসের রায়",
+            description: "অপেক্ষার খেলা শুরু হয়েছে। দূতাবাস এখন আপনার আবেদন প্রক্রিয়া করছে। ধৈর্য ধরুন!",
+            tasks: [
+                { text: "‘সংগ্রহের জন্য প্রস্তুত’ নোটিফিকেশন গ্রহণ করুন।", isCompleted: false },
+            ],
+            taskCompleteMessages: [
+                "নোটিফিকেশন গ্রহণ করা হয়েছে! চূড়ান্ত পুরষ্কার দেখা যাচ্ছে।"
+            ],
+            levelUpMessage: "চূড়ান্ত রায় এসেছে! আপনার অনুসন্ধান সম্পূর্ণ। উদীয়মান সূর্যের পথে আপনার যাত্রার জন্য প্রস্তুত হোন!"
+        }
+    ];
+
+    const geminiFeatures = [
+        {
+            title1: "জাপানি সংস্কৃতি",
+            prompt1: "5টি গুরুত্বপূর্ণ জাপানি সাংস্কৃতিক নিয়ম ও শিষ্টাচার সম্পর্কে লিখুন। যেমন: অভিবাদন, জুতা পরিধান, এবং উপহার দেওয়া।",
+            title2: "প্রয়োজনীয় জাপানি ভাষা",
+            prompt2: "জাপানে ভ্রমণের জন্য 5টি সাধারণ বাংলা-জাপানি বাক্যাংশ এবং তাদের উচ্চারণ লিখুন।",
+        },
+        {
+            title1: "ঐতিহ্যবাহী জাপানি খাবার",
+            prompt1: "5টি জনপ্রিয় এবং ঐতিহ্যবাহী জাপানি খাবার সম্পর্কে সংক্ষিপ্ত বিবরণ দিন।",
+            title2: "টোকিওর দর্শনীয় স্থান",
+            prompt2: "টোকিওর 5টি জনপ্রিয় পর্যটন স্থান সম্পর্কে সংক্ষিপ্ত বিবরণ দিন।",
+        },
+        {
+            title1: "জাপানের পরিবহন",
+            prompt1: "জাপানে ভ্রমণের জন্য 5টি গুরুত্বপূর্ণ পরিবহন ব্যবস্থা (যেমন: বুলেট ট্রেন, সাবওয়ে) এবং তাদের সম্পর্কে সংক্ষিপ্ত বিবরণ দিন।",
+            title2: "জাপানি কেনাকাটা",
+            prompt2: "জাপানে কেনাকাটার জন্য 5টি জনপ্রিয় জিনিস এবং সেগুলো কোথায় পাওয়া যায় সে সম্পর্কে লিখুন।",
+        },
+        {
+            title1: "ভিসা আবেদনের টিপস",
+            prompt1: "জাপানের ভিজিট ভিসা আবেদনের জন্য 5টি গুরুত্বপূর্ণ টিপস লিখুন।",
+            title2: "ভ্রমণের প্রস্তুতি",
+            prompt2: "জাপানে যাওয়ার আগে 5টি প্রয়োজনীয় জিনিস সম্পর্কে লিখুন। যেমন: প্যাকিং, মুদ্রা, এবং ইন্টারনেট।",
+        },
+        {
+            title1: "ভ্রমণ গাইড",
+            prompt1: "জাপান ভ্রমণের জন্য একটি সংক্ষিপ্ত ভ্রমণ গাইড তৈরি করুন।",
+            title2: "জরুরী যোগাযোগ",
+            prompt2: "জাপানে জরুরি অবস্থায় যোগাযোগের জন্য 5টি গুরুত্বপূর্ণ বাংলা-জাপানি শব্দ এবং বাক্য লিখুন।",
+        }
+    ];
+
+    const japanFacts = [
+        "জাপানে ৬,৮০০টিরও বেশি দ্বীপ রয়েছে, কিন্তু চারটি বৃহত্তম দ্বীপ (হোনশু, হোক্কাইডো, কিয়ুশু, এবং শিকোকু) মোট ভূমির ৯৭% জুড়ে রয়েছে।",
+        "বিশ্বের বৃহত্তম মাছের বাজার, সুকিজি মার্কেট, টোকিওতে অবস্থিত, যা ১৯৩৫ সাল থেকে চালু রয়েছে।",
+        "জাপানে প্রায় সবকিছু বিক্রি করার জন্য ভেন্ডিং মেশিন রয়েছে, যার মধ্যে রয়েছে তাজা ফুল, গরম খাবার, এবং এমনকি ছাতাও।",
+        "চেরি ব্লসম বা সাকুরা, জাপানের জাতীয় ফুল এবং এটি জীবনের সৌন্দর্য ও ক্ষণস্থায়ীতাকে প্রতীক করে।",
+        "বিশ্বের সবচেয়ে পুরানো কোম্পানি জাপানে অবস্থিত। কোংগৌ গুমি ছিল একটি নির্মাণ কোম্পানি যা ১,৪০০ বছরেরও বেশি সময় ধরে পরিচালিত হয়েছিল।",
+        "জাপানের প্রায় ৭০% এলাকা পর্বতমালা, যা এটি কৃষি এবং নির্মাণের জন্য অনুপযোগী করে তোলে, কিন্তু এটি শ্বাসরুদ্ধকর প্রাকৃতিক দৃশ্যও তৈরি করে।"
+    ];
+
+    let currentLevelIndex = 0;
+    const totalLevels = levels.length;
+    let userName = '';
+    let userEmail = '';
+
+    // DOM Elements
+    const introFormDiv = document.getElementById('intro-form');
+    const userInfoForm = document.getElementById('user-info-form');
+    const gameMainDiv = document.getElementById('game-main');
+    const progressBar = document.getElementById('progressBar');
+    const levelTitle = document.getElementById('level-title');
+    const levelDescription = document.getElementById('level-description');
+    const taskList = document.getElementById('task-list');
+    const nextLevelBtn = document.getElementById('next-level-btn');
+    const victoryScreen = document.getElementById('victory-screen');
+    const levelScreen = document.getElementById('level-screen');
+    const footnoteContainer = document.getElementById('footnote-container');
+    const dynamicBtn1 = document.getElementById('dynamic-btn-1');
+    const dynamicBtn2 = document.getElementById('dynamic-btn-2');
+
+    // General Notification Modal Elements
+    const notificationModal = document.getElementById('notification-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalMessage = document.getElementById('modal-message');
+    const closeNotificationBtn = document.getElementById('close-notification-btn');
+
+    // Gemini AI Modal Elements
+    const aiModal = document.getElementById('ai-modal');
+    const closeAiBtn = document.getElementById('close-ai-btn');
+    const itineraryPromptInput = document.getElementById('itinerary-prompt-input');
+    const generateItineraryBtn = document.getElementById('generate-itinerary-btn');
+    const loadingIndicatorAI = document.getElementById('loading-indicator-ai');
+    const aiResponseArea = document.getElementById('ai-response-area');
+    const completeItineraryBtn = document.getElementById('complete-itinerary-btn');
+    const copyItineraryBtn = document.getElementById('copy-itinerary-btn');
+    
+    // Dynamic Modal Elements
+    const dynamicModal = document.getElementById('dynamic-modal');
+    const closeDynamicBtn = document.getElementById('close-dynamic-btn');
+    const dynamicModalTitle = document.getElementById('dynamic-modal-title');
+    const dynamicResponseArea = document.getElementById('dynamic-response-area');
+    const loadingIndicatorDynamic = document.getElementById('loading-indicator-dynamic');
+    const loadingMessageDynamic = document.getElementById('loading-message-dynamic');
+    const copyDynamicBtn = document.getElementById('copy-dynamic-btn');
+
+
+    // Function to update the progress bar
+    function updateProgressBar() {
+        const completedLevels = levels.filter(level => level.isCompleted).length;
+        const overallProgress = (completedLevels / totalLevels) * 100;
+        progressBar.style.width = overallProgress + '%';
+        
+        const currentLevel = levels[currentLevelIndex];
+        if (currentLevel) {
+            const completedTasks = currentLevel.tasks.filter(task => task.isCompleted).length;
+            const levelProgress = (completedTasks / currentLevel.tasks.length) * 100;
+            const overallLevelProgress = (completedLevels * (100 / totalLevels)) + (levelProgress / totalLevels);
+            progressBar.style.width = overallLevelProgress + '%';
+        }
+    }
+
+    // Function to display a random fact
+    function displayRandomFact() {
+        const randomIndex = Math.floor(Math.random() * japanFacts.length);
+        footnoteContainer.textContent = `আপনি কি জানেন? ${japanFacts[randomIndex]}`;
+    }
+
+    // Display a notification message using the custom modal
+    function showNotification(title, message) {
+        modalTitle.textContent = title;
+        modalMessage.textContent = message;
+        notificationModal.style.display = 'flex';
+    }
+
+    // Close the general notification modal
+    function closeNotificationModal() {
+        notificationModal.style.display = 'none';
+    }
+
+    // Close the Gemini AI modal
+    function closeAiModal() {
+        aiModal.style.display = 'none';
+        itineraryPromptInput.value = '';
+        aiResponseArea.textContent = '';
+        loadingIndicatorAI.style.display = 'none';
+        completeItineraryBtn.style.display = 'none';
+        copyItineraryBtn.style.display = 'none';
+    }
+
+    // Close the dynamic Gemini modal
+    function closeDynamicModal() {
+        dynamicModal.style.display = 'none';
+        dynamicResponseArea.textContent = '';
+        loadingIndicatorDynamic.style.display = 'none';
+        copyDynamicBtn.style.display = 'none';
+    }
+
+
+    // Event listeners for closing modals
+    closeNotificationBtn.addEventListener('click', closeNotificationModal);
+    closeAiBtn.addEventListener('click', closeAiModal);
+    closeDynamicBtn.addEventListener('click', closeDynamicModal);
+    
+    window.onclick = function(event) {
+        if (event.target == notificationModal) {
+            closeNotificationModal();
+        }
+        if (event.target == aiModal) {
+            closeAiModal();
+        }
+        if (event.target == dynamicModal) {
+            closeDynamicModal();
+        }
+    }
+    
+    // Function to handle the dynamic Gemini API call
+    async function handleDynamicFeature(prompt, loadingMessage) {
+        dynamicModal.style.display = 'flex';
+        dynamicModalTitle.textContent = loadingMessage; // Use loading message as title
+        loadingIndicatorDynamic.style.display = 'block';
+        dynamicResponseArea.textContent = '';
+        copyDynamicBtn.style.display = 'none';
+        
+        const apiKey = "";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+        let chatHistory = [];
+        chatHistory.push({
+            role: "user",
+            parts: [{ text: prompt }]
+        });
+        const payload = { contents: chatHistory };
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error("API error:", errorData);
+                throw new Error(`API error: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (result.candidates && result.candidates.length > 0 &&
+                result.candidates[0].content && result.candidates[0].content.parts &&
+                result.candidates[0].content.parts.length > 0) {
+                const text = result.candidates[0].content.parts[0].text;
+                dynamicResponseArea.textContent = text;
+                copyDynamicBtn.style.display = 'block';
+            } else {
+                dynamicResponseArea.textContent = "তথ্য তৈরি করা যায়নি। অন্য একটি অনুরোধ চেষ্টা করুন।";
+                console.error("Unexpected API response structure:", result);
+            }
+        } catch (error) {
+            console.error("Error generating dynamic content:", error);
+            dynamicResponseArea.textContent = "একটি ত্রুটি হয়েছে। পরে আবার চেষ্টা করুন।";
+        } finally {
+            loadingIndicatorDynamic.style.display = 'none';
+        }
+    }
+
+    // Function to handle the Gemini API call for itinerary generation
+    async function generateItinerary(prompt) {
+        loadingIndicatorAI.style.display = 'block';
+        generateItineraryBtn.disabled = true;
+        aiResponseArea.textContent = '';
+        completeItineraryBtn.style.display = 'none';
+        copyItineraryBtn.style.display = 'none';
+        const apiKey = "";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+        let chatHistory = [];
+        // Updated prompt to request output in Bangla
+        chatHistory.push({
+            role: "user",
+            parts: [{ text: `জাপানে ভ্রমণের জন্য একটি বিস্তারিত এবং সংক্ষিপ্ত ভ্রমণসূচি তৈরি করুন, বাংলায়। ভ্রমণটি এই বিবরণের উপর ভিত্তি করে হওয়া উচিত: "${prompt}"। প্রতিদিনের জন্য কিছু প্রধান কার্যক্রম সহ একটি যৌক্তিক দিনের পর দিন পরিকল্পনায় মনোযোগ দিন। এটি ২০০ শব্দের মধ্যে রাখুন।` }]
+        });
+        const payload = { contents: chatHistory };
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error("API error:", errorData);
+                throw new Error(`API error: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (result.candidates && result.candidates.length > 0 &&
+                result.candidates[0].content && result.candidates[0].content.parts &&
+                result.candidates[0].content.parts.length > 0) {
+                const text = result.candidates[0].content.parts[0].text;
+                aiResponseArea.textContent = text;
+                completeItineraryBtn.style.display = 'block';
+                copyItineraryBtn.style.display = 'block';
+            } else {
+                aiResponseArea.textContent = "ভ্রমণসূচী তৈরি করা যায়নি। অন্য একটি অনুরোধ চেষ্টা করুন।";
+                console.error("Unexpected API response structure:", result);
+            }
+        } catch (error) {
+            console.error("Error generating itinerary:", error);
+            aiResponseArea.textContent = "একটি ত্রুটি হয়েছে। পরে আবার চেষ্টা করুন।";
+        } finally {
+            loadingIndicatorAI.style.display = 'none';
+            generateItineraryBtn.disabled = false;
+        }
+    }
+    
+    // Event listener for the generate itinerary button
+    generateItineraryBtn.addEventListener('click', () => {
+        const prompt = itineraryPromptInput.value.trim();
+        if (prompt) {
+            generateItinerary(prompt);
+        } else {
+            aiResponseArea.textContent = "অনুগ্রহ করে আপনার ভ্রমণের জন্য একটি বিবরণ লিখুন।";
+        }
+    });
+
+    // Function to handle task completion
+    function completeTask(taskIndex) {
+        const currentLevel = levels[currentLevelIndex];
+        if (!currentLevel.tasks[taskIndex].isCompleted) {
+            currentLevel.tasks[taskIndex].isCompleted = true;
+            renderLevel();
+            checkLevelCompletion();
+            const message = currentLevel.taskCompleteMessages[taskIndex] || "কাজ সম্পন্ন! ভিসার এক ধাপ কাছে চলে এসেছেন।";
+            showNotification('কাজ সম্পন্ন!', message);
+        }
+    }
+
+    // Function to render the current level's content
+    function renderLevel() {
+        const currentLevel = levels[currentLevelIndex];
+        const currentGeminiFeatures = geminiFeatures[currentLevelIndex];
+
+        levelTitle.textContent = currentLevel.title;
+        levelDescription.textContent = currentLevel.description;
+        taskList.innerHTML = '';
+        
+        currentLevel.tasks.forEach((task, index) => {
+            const li = document.createElement('li');
+            li.className = 'task-item';
+            if (task.isCompleted) {
+                li.classList.add('completed');
+            }
+            
+            const taskTextSpan = document.createElement('span');
+            taskTextSpan.className = 'task-text';
+            taskTextSpan.textContent = task.text;
+            li.appendChild(taskTextSpan);
+
+            // Add info button if it exists
+            if (task.infoAction) {
+                const infoBtn = document.createElement('button');
+                infoBtn.className = 'complete-button';
+                infoBtn.textContent = task.infoAction.label;
+                infoBtn.style.backgroundColor = '#17a2b8'; // Info color
+                infoBtn.style.marginRight = '10px';
+                infoBtn.onclick = () => {
+                    showNotification(task.infoAction.label, task.infoAction.message);
+                };
+                li.appendChild(infoBtn);
+            }
+            
+            let actionBtn;
+            if (task.specialAction === 'generateItinerary') {
+                actionBtn = document.createElement('button');
+                actionBtn.className = 'complete-button ai-button';
+                actionBtn.textContent = '✨ ভ্রমণসূচী তৈরি করুন';
+                actionBtn.disabled = task.isCompleted;
+                actionBtn.onclick = () => {
+                    aiModal.style.display = 'flex';
+                };
+            } else {
+                actionBtn = document.createElement('button');
+                actionBtn.className = 'complete-button';
+                actionBtn.textContent = task.isCompleted ? 'সম্পূর্ণ!' : 'কাজ শেষ';
+                actionBtn.disabled = task.isCompleted;
+                actionBtn.onclick = () => completeTask(index);
+            }
+            
+            li.appendChild(actionBtn);
+            taskList.appendChild(li);
+        });
+
+        // Update dynamic buttons
+        if (currentGeminiFeatures) {
+            dynamicBtn1.textContent = `✨ ${currentGeminiFeatures.title1}`;
+            dynamicBtn1.onclick = () => {
+                dynamicModalTitle.textContent = currentGeminiFeatures.title1;
+                handleDynamicFeature(currentGeminiFeatures.prompt1, `${currentGeminiFeatures.title1} তৈরি হচ্ছে...`);
+            };
+
+            dynamicBtn2.textContent = `✨ ${currentGeminiFeatures.title2}`;
+            dynamicBtn2.onclick = () => {
+                dynamicModalTitle.textContent = currentGeminiFeatures.title2;
+                handleDynamicFeature(currentGeminiFeatures.prompt2, `${currentGeminiFeatures.title2} তৈরি হচ্ছে...`);
+            };
+        }
+
+        updateProgressBar();
+        checkLevelCompletion();
+        displayRandomFact();
+    }
+    
+    // Function to copy text to clipboard
+    function copyTextToClipboard(text) {
+        // Use a temporary textarea to hold the text to copy
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showNotification('কপি করা হয়েছে!', 'লেখাটি সফলভাবে আপনার ক্লিপবোর্ডে কপি করা হয়েছে।');
+    }
+
+    // Event listener for the new "Complete Itinerary" button
+    completeItineraryBtn.addEventListener('click', () => {
+        // The itinerary task is the 4th task in the array (index 3)
+        completeTask(3); 
+        closeAiModal();
+    });
+    
+    // Event listener for the "Copy" buttons
+    copyItineraryBtn.addEventListener('click', () => {
+        copyTextToClipboard(aiResponseArea.textContent);
+    });
+
+    copyDynamicBtn.addEventListener('click', () => {
+        copyTextToClipboard(dynamicResponseArea.textContent);
+    });
+
+
+    // Function to check if all tasks in a level are completed
+    function checkLevelCompletion() {
+        const currentLevel = levels[currentLevelIndex];
+        if (currentLevel && currentLevel.tasks.every(task => task.isCompleted)) {
+            currentLevel.isCompleted = true;
+            nextLevelBtn.style.display = 'block';
+            const message = currentLevel.levelUpMessage;
+            showNotification('ক্ষমতা উন্নত হয়েছে!', message);
+        } else {
+            nextLevelBtn.style.display = 'none';
+        }
+    }
+
+    // Function to move to the next level
+    function nextLevel() {
+        if (currentLevelIndex < levels.length - 1) {
+            currentLevelIndex++;
+            renderLevel();
+            nextLevelBtn.style.display = 'none';
+        } else {
+            showVictoryScreen();
+        }
+    }
+
+    // Function to show the victory screen
+    function showVictoryScreen() {
+        levelScreen.style.display = 'none';
+        victoryScreen.style.display = 'block';
+        progressBar.style.width = '100%';
+        showNotification('হোম রান!', 'আপনি ভিসা পেয়েছেন! উদীয়মান সূর্যের পথে যাত্রা সম্পূর্ণ হয়েছে।');
+    }
+
+    // Event listener for the next level button
+    nextLevelBtn.addEventListener('click', nextLevel);
+
+    // Event listener for the intro form submission
+    userInfoForm.addEventListener('submit', function(event) {
+        // 1. Prevent the default form submission behavior which reloads the page
+        event.preventDefault();
+
+        // 2. Get user data from the form fields
+        userName = document.getElementById('user-name').value;
+        userEmail = document.getElementById('user-email').value;
+
+        // Optional: Submit to Formspree in the background without leaving the page
+        const formData = new FormData(userInfoForm);
+        fetch(userInfoForm.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Accept': 'application/json'
+            }
+        }).then(response => {
+            if (response.ok) {
+                console.log('Form data successfully sent to Formspree.');
+            } else {
+                 console.error('Failed to send form data to Formspree.');
+            }
+        }).catch(error => {
+            console.error('Error submitting form to Formspree:', error);
+        });
+
+        // 3. Hide the introductory form
+        introFormDiv.style.display = 'none';
+        
+        // 4. Show the main game area
+        gameMainDiv.style.display = 'block';
+        
+        // 5. Render the first level to officially start the game
+        renderLevel();
+    });
+
+    // Initial game setup
+    window.onload = function() {
+        // Show the intro form and hide the game when the page first loads
+        introFormDiv.style.display = 'block';
+        gameMainDiv.style.display = 'none';
+    };
+</script>
+</body>
+</html>
